@@ -25,6 +25,7 @@ class TwitterInsightAgent:
         self.bearer_token = os.getenv('TWITTER_BEARER_TOKEN')
         self.openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
         self.openrouter_model = os.getenv('OPENROUTER_MODEL', 'deepseek/deepseek-r1-distill-qwen-7b')
+        self.cooldown_seconds = int(os.getenv('COOLDOWN_SECONDS', 60))
         
         if not self.bearer_token or not self.openrouter_api_key:
             raise ValueError("Missing required API credentials. Please check your .env file.")
@@ -290,6 +291,13 @@ Requirements:
                     continue
                 
                 self.analyze_user(username)
+
+                # Add a cooldown period to respect API rate limits
+                if self.cooldown_seconds > 0:
+                    print(f"\n⏳ Cooldown period: Please wait {self.cooldown_seconds} seconds before the next analysis.")
+                    time.sleep(self.cooldown_seconds)
+                    print("✅ Ready for the next analysis.")
+
                 
             except KeyboardInterrupt:
                 print("\n👋 Goodbye!")
